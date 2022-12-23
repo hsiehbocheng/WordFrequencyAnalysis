@@ -162,4 +162,4 @@ company2 = 'iKala'
 這裡可以看出玉山金控與國泰金控之間的相似度高於玉山金控與Appier，符合認為同產業較相近的假設。
 
 這邊有稍微用Tableau 製作簡單Dashborad，視覺化同產業之間的相似度<br><br>
-<img src="https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/img/twb.png" alt="Cover" width="50%"/>
+<img src="https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/img/twb.png" alt="Cover" width="70%"/>
