@@ -1,5 +1,5 @@
 # WordFrequencyAnalysis
-Compare Jieba and Droidtown ArticutAPI word segmentation and post tagging, and use the self-introduction of each company in the three industries as data to analyze the use of nouns and verbs in each industry
+Compare Jieba and Droidtown ArticutAPI word segmentation and post tagging, and use the self-introduction of each company in the three industries as data to analyze the use of nouns and verbs in each industry.<br>
 比較Jieba 與Droidtown ArticutAPI 中文文本的斷詞與詞性標註，並且選了三個產業（金融業、半導體產業與AI 新創）幾間公司，擷取其在官網中的自介，分別看名詞與動詞及TFIDF 特徵詞之詞頻分析與餘弦相似度計算。<br><br>
 
 Abstract:<br>
