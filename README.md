@@ -18,7 +18,7 @@ Introduction:<br>
 
 - [資料集](https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/data/公司自我介紹.xlsx)：三個產業各五間公司於其官網之自介擷取。<br>
 
-- reference: [Droidtown/NLP_Training/Unit04])https://github.com/Droidtown/NLP_Training/tree/main/Unit04)
+- reference: [Droidtown/NLP_Training/Unit04](https://github.com/Droidtown/NLP_Training/tree/main/Unit04)
 
 - Python code:<br>
 
