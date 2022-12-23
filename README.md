@@ -22,7 +22,8 @@ Introduction:<br>
 
 - Python code:<br>
 
-使用Articut API 需要在官網申請金鑰，否則在 ``username`` 與 ``articut_key`` 輸入空字串，則使用每日的 2000 字額度。
+1.  Articut v.s. Jieba<br>
+使用Articut API 需要在官網申請金鑰，否則在 ``username`` 與 ``articut_key`` 輸入空字串，則使用每日的 2000 字額度。<br>
 ```py
 config = { 
     "username":"", # use free 2,000 word per day without api key
@@ -30,7 +31,8 @@ config = {
     
 articut = Articut(config['username'],config['articut_key'])
 ```
-定義Articut 與Jieba 擷取斷詞與詞性標註結果，這邊參考老師的function，再自己加上一些變化，例如是否要去除停用詞等。
+定義Articut 與Jieba 擷取斷詞與詞性標註結果，這邊參考老師的function，再自己加上一些變化，例如是否要去除停用詞等。<br>
+Jieba 的詞性標記結果參考他們的[官網](https://github.com/fxsjy/jieba)<br>
     
 ```py
 def wordExtractor(inputLIST, unify=True, StopWords=None):
@@ -39,23 +41,6 @@ def wordExtractor(inputLIST, unify=True, StopWords=None):
     配合 Articut() 的 .getNounStemLIST() 和 .getVerbStemLIST() …等功能，拋棄位置資訊，只抽出詞彙。
     我另外又加上是否去除停用詞的選項，default 是 None，則和原本一樣，或著送入list 作為停用詞
     '''
-    resultLIST = []
-
-    for item in inputLIST:
-        if item == []:
-            pass
-        else:
-            for word in item:
-                resultLIST.append(word[-1])
-    if StopWords == None:
-        pass
-    else:
-        resultLIST = [word for word in resultLIST if word not in StopWords]
-        
-    if unify == True:
-        output = sorted(list(set(resultLIST)))
-    else:
-        output =  sorted(resultLIST)
 
     return output
 
@@ -63,16 +48,6 @@ def counterCosinSimilarity(RESULT1, RESULT2, terms=None, stopWords=None):
     '''
     微更改原本的demo function， 輸入變成吃 articut.parse 的 Result，wordExtractor 與Counter 我寫在function 裏面了
     '''
-
-    counter01 = Counter(wordExtractor(inputLIST=RESULT1,
-                                    unify=False, 
-                                    StopWords=stopWords))
-    counter02 = Counter(wordExtractor(inputLIST=RESULT2,
-                                    unify=False, 
-                                    StopWords=stopWords))
-    
-    if terms == None:
-        terms = set(counter01).union(counter02)
     dotprod = sum(counter01.get(k, 0) * counter02.get(k, 0) for k in terms)
     magA = math.sqrt(sum(counter01.get(k, 0) ** 2 for k in terms))
     magB = math.sqrt(sum(counter02.get(k, 0) ** 2 for k in terms))
@@ -84,35 +59,107 @@ def jiebaPosExtractor(text, unify=True, StopWords=None):
     '''
     紀錄Jieba 斷詞語Pos tagging 的結果
     '''
-
-    words = pseg.cut(text)
-
-    result = []
-    verb_ = []
-    num_ = []
-    adj_ = []
-    per_ = []
-    for word, flag in words:
-        if StopWords != None:
-            if word in StopWords:
-                continue
-
-        result.append((flag, word))
-        if flag in ['v', 'vd','vn']:
-            verb_.append(word)
-        elif flag in ['n', 'nr', 'nz']:
-            num_.append(word)
-        elif flag in ['nr', 'PER']:
-            per_.append(word)
-        elif flag in ['a', 'ad', 'an', 'd']:
-            adj_.append(word)
-
-    
-    if unify == True:
-        verb_ = sorted(list(set(verb_)))
-        num_ = sorted(list(set(num_)))
-        adj_ = sorted(list(set(adj_)))
-        per_ = sorted(list(set(per_)))
-
     return result, verb_, num_, adj_, per_, 
 ```
+與老師的demo 一樣，利用 ``articut.parse(text: str)`` 得到斷詞結果 ``result``，再利用 ``articut.getVerbStemLIST(result)`` 或是 ``articut.getNounStemLIST(result)`` 與 ``wordExtractor(inputLIST=VerbResultLIST, unify=True, StopWords=stopWords)``得到名詞與動詞。
+
+```py
+company = 'Appier'
+text = rawData.loc[rawData.公司 == company]['簡介'].values[0]
+result = articut.parse(text)
+
+VerbResultLIST = articut.getVerbStemLIST(result)
+NounResultLIST = articut.getNounStemLIST(result)
+
+articutVerb = wordExtractor(inputLIST=VerbResultLIST, 
+                            unify=True, 
+                            StopWords=stopWords)
+articutNoun = wordExtractor(inputLIST=NounResultLIST, 
+                            unify=True, 
+                            StopWords=stopWords)
+result, verb_, num_, adj_, per_,  = jiebaPosExtractor(text=text, 
+                                                    unify=True, 
+                                                    StopWords=stopWords)
+pd.DataFrame.from_dict({'articutVerb': articutVerb,
+                'jiebaVerb': verb_,
+                '': ['']* max(len(articutVerb), len(verb_), len(articutNoun), len(num_)),
+                'articutNoun': articutNoun,
+                'jiebaNoun':num_},
+                orient='index').transpose().head(10)
+```
+<img src="https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/img/Appier_table.png" alt="Cover" width="50%"/>
+<img src="https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/img/Appier.png" alt="Cover" width="50%"/>
+
+<br>
+可以發現在動詞的部分差異並不大，但名詞Articut 則可以吃到一些更代表的字詞，例如SaaS，因為該詞是英文，在Jieba 中會被分到 ``eng``，無法判斷詞性。<br>
+
+接下來看看Awoo <br>
+<img src="https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/img/Awoo_table.png" alt="Cover" width="50%"/>
+<img src="https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/img/Awoo.png" alt="Cover" width="50%"/>
+<br>
+在Awoo 這邊可以看到，像這樣的新創或是Ai 公司一定會寫到英文如: AI、MarTech，``Articut API`` 顯現了其優勢，而``Jieba`` 在中文中會發生像：化、全，這樣的斷詞錯誤。<br>
+
+2. 名詞、動詞與TFIDF 特徵詞詞頻餘弦相似度<br>
+
+計算兩間公司在名詞、動詞與TFIDF 特徵詞的詞頻相似度，期望看到該公司的自介文本會與同產業其他公司相近。<br>
+
+```py
+company1 = '國泰金控'
+company2 = '玉山金控'
+
+text1 = rawData.loc[rawData.公司 == company1]['簡介'].values[0]
+text2 = rawData.loc[rawData.公司 == company2]['簡介'].values[0]
+result1 = articut.parse(text1)
+result2 = articut.parse(text2)
+resultLIST1 = articut.getVerbStemLIST(result1)
+resultLIST2 = articut.getVerbStemLIST(result2)
+
+similarity = counterCosinSimilarity(resultLIST1, resultLIST2)
+print(f'{company1} vs {company2} 動詞相似度 {similarity}')
+
+resultLIST1 = articut.getNounStemLIST(result1)
+resultLIST2 = articut.getNounStemLIST(result2)
+
+similarity = counterCosinSimilarity(resultLIST1, resultLIST2)
+print(f'{company1} vs {company2} 名詞相似度 {similarity}')
+
+resultLIST1 = articut.analyse.extract_tags(result1)
+resultLIST2 = articut.analyse.extract_tags(result2)
+similarity = counterCosinSimilarity(resultLIST1, resultLIST2)
+print(f'{company1} vs {company2} TFIDF相似度 {similarity}')
+```
+```py
+國泰金控 vs 玉山金控 動詞相似度 0.4822354489342862
+國泰金控 vs 玉山金控 名詞相似度 0.22998675142327324
+國泰金控 vs 玉山金控 TFIDF相似度 0.3424747597107866
+```
+<br>
+上面可以發現動詞相似度最高，而TFIDF 贏過名詞，輸給動詞<br>
+
+```py
+company2 = 'iKala'
+```
+```py
+國泰金控 vs iKala 動詞相似度 0.36103584630253305
+國泰金控 vs iKala 名詞相似度 0.22857142857142856
+```
+<br>
+而這裡可以發現國泰和玉山相似度都比國泰與iKala 高。<br>
+
+
+```py
+玉山金控 vs 國泰金控 動詞相似度 0.4822354489342862
+玉山金控 vs 國泰金控 名詞相似度 0.22998675142327324
+玉山金控 vs 國泰金控 TFIDF相似度 0.3424747597107866
+```
+
+```py
+玉山金控 vs Appier 動詞相似度 0.11850314695868774
+玉山金控 vs Appier 名詞相似度 0.03155092231950747
+玉山金控 vs Appier TFIDF相似度 0.1851946331679053
+```
+<br>
+這裡可以看出玉山金控與國泰金控之間的相似度高於玉山金控與Appier，符合認為同產業較相近的假設。
+
+這邊有稍微用Tableau 製作簡單Dashborad，視覺化同產業之間的相似度<br>
+<img src="https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/img/twb.png" alt="Cover" width="50%"/>
