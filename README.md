@@ -1,6 +1,12 @@
 # WordFrequencyAnalysis
-Compare Jieba and Droidtown ArticutAPI word segmentation and post tagging, and use the self-introduction of each company in the three industries as data to analyze the use of nouns and verbs in each industry
+Compare Jieba and Droidtown ArticutAPI word segmentation and post tagging, and use the self-introduction of each company in the three industries as data to analyze the use of nouns and verbs in each industry.<br>
 比較Jieba 與Droidtown ArticutAPI 中文文本的斷詞與詞性標註，並且選了三個產業（金融業、半導體產業與AI 新創）幾間公司，擷取其在官網中的自介，分別看名詞與動詞及TFIDF 特徵詞之詞頻分析與餘弦相似度計算。<br><br>
+
+- [GoogleDrive 連結](https://drive.google.com/drive/folders/11dnCr1GPHcJDBMNvqC0WO_JCtTlhjSrX?usp=share_link)
+- [Tableau Dashborad 連結](https://public.tableau.com/shared/RGDJGTFYS?:display_count=n&:origin=viz_share_link)
+- [Doridtown Github 連結](https://github.com/Droidtown/ArticutAPI)
+- [卓騰語言科技](https://www.droidtown.co/zh-tw/)
+
 
 Abstract:<br>
 在 [【人工智慧應用專題】語言學導向的NLP](https://www.youtube.com/watch?v=PbEQ3KE6WDE&t=7882s)，
@@ -18,7 +24,7 @@ Introduction:<br>
 
 - [資料集](https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/data/公司自我介紹.xlsx)：三個產業各五間公司於其官網之自介擷取。<br>
 
-- reference: [Droidtown/NLP_Training/Unit04])https://github.com/Droidtown/NLP_Training/tree/main/Unit04)
+- reference: [Droidtown/NLP_Training/Unit04](https://github.com/Droidtown/NLP_Training/tree/main/Unit04)
 
 - Python code:<br>
 
@@ -162,4 +168,4 @@ company2 = 'iKala'
 這裡可以看出玉山金控與國泰金控之間的相似度高於玉山金控與Appier，符合認為同產業較相近的假設。
 
 這邊有稍微用Tableau 製作簡單Dashborad，視覺化同產業之間的相似度<br><br>
-<img src="https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/img/twb.png" alt="Cover" width="50%"/>
+<img src="https://github.com/hsiehbocheng/WordFrequencyAnalysis/blob/main/img/twb.png" alt="Cover" width="70%"/>
